@@ -1,11 +1,14 @@
-import { View, Text, SafeAreaView, TouchableOpacity, Platform } from 'react-native'
+import { View, Text, SafeAreaView, TouchableOpacity, Platform, ScrollView } from 'react-native'
 import React from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { styles } from '../theme'
 import {Bars3CenterLeftIcon, MagnifyingGlassIcon} from 'react-native-heroicons/outline'
+import TrendingMovies from '../components/TrendingMovies'
+import { useState } from 'react'
 
 const ios = Platform.OS == 'ios'
 const HomeScreen = () => {
+    const [trending, setTrending] = useState([1,2,3])
     return (
         <View className="flex-1 bg-neutral-800">
             <SafeAreaView className={ios? "-mb-2" : "mb-3"}>
@@ -20,6 +23,10 @@ const HomeScreen = () => {
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
+
+            <ScrollView>
+                <TrendingMovies data={trending}/>
+            </ScrollView>
         </View>
     )
 }
