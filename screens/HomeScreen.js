@@ -8,25 +8,39 @@ import { useState } from 'react'
 import MovieList from '../components/MovieList'
 import { useNavigation } from '@react-navigation/native'
 import Loading from '../components/Loading'
-import { fetchTopRatedMovies } from '../api/MovieAPI'
+import { fetchTopRatedMovies, fetchUpcomingMovies } from '../api/MovieAPI'
 
 const ios = Platform.OS == 'ios'
 const HomeScreen = () => {
-    const [trending, setTrending] = useState([1, 2, 3])
-    const [upcoming, setUpcoming] = useState([1, 2, 3])
-    const [topRated, setTopRated] = useState([1, 2, 3])
-    const [loading, setLoading] = useState(false)
+    const [trending, setTrending] = useState([])
+    const [upcoming, setUpcoming] = useState([])
+    const [topRated, setTopRated] = useState([])
+    const [loading, setLoading] = useState(true)
     const navigation = useNavigation()
 
     useEffect(()=>{
         getTrendingMovies()
+        getUpcomingMovies()
+        getTopRatedMovies()
     }, [])
 
     const getTrendingMovies = async ()=>{
         const data = await fetchTopRatedMovies()
-        console.log('got trending movies: ', data)
+        console.log('PPPP got trending movies: ', data)
         if(data && data.results) setTrending(data.results)
         setLoading(false)
+    }
+
+    const getUpcomingMovies = async ()=>{
+        const data = await fetchUpcomingMovies()
+        console.log('PPPP got upcoming movies', data)
+        if(data && data.results) setUpcoming(data.results)
+    }
+
+    const getTopRatedMovies = async ()=>{
+        const data = await fetchTopRatedMovies()
+        console.log('PPPP got top rated movies', data)
+        if(data && data.results) setTopRated(data.results)
     }
 
     return (
@@ -55,10 +69,10 @@ const HomeScreen = () => {
                         { trending.length>0 && <TrendingMovies data={trending} />}
 
                         {/* upcoming */}
-                        <MovieList title="Upcoming" data={upcoming} />
+                        { upcoming.length>0 && <MovieList title="Upcoming" data={upcoming} /> }
 
                         {/* top rated */}
-                        <MovieList title="Top Rated" data={topRated} />
+                        { topRated.length>0 && <MovieList title="Top Rated" data={topRated} /> }
                     </ScrollView>
                 )
             }
