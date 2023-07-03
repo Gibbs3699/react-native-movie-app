@@ -1,5 +1,5 @@
 import { View, Text, SafeAreaView, TouchableOpacity, Platform, ScrollView } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { styles } from '../theme'
 import { Bars3CenterLeftIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline'
@@ -8,6 +8,7 @@ import { useState } from 'react'
 import MovieList from '../components/MovieList'
 import { useNavigation } from '@react-navigation/native'
 import Loading from '../components/Loading'
+import { fetchTopRatedMovies } from '../api/MovieAPI'
 
 const ios = Platform.OS == 'ios'
 const HomeScreen = () => {
@@ -16,6 +17,18 @@ const HomeScreen = () => {
     const [topRated, setTopRated] = useState([1, 2, 3])
     const [loading, setLoading] = useState(false)
     const navigation = useNavigation()
+
+    useEffect(()=>{
+        getTrendingMovies()
+    }, [])
+
+    const getTrendingMovies = async ()=>{
+        const data = await fetchTopRatedMovies()
+        console.log('got trending movies: ', data)
+        if(data && data.results) setTrending(data.results)
+        setLoading(false)
+    }
+
     return (
         <View className="flex-1 bg-neutral-800">
             <SafeAreaView className={ios ? "-mb-2" : "mb-3"}>
@@ -39,7 +52,7 @@ const HomeScreen = () => {
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{ paddingBottom: 10 }}
                     >
-                        <TrendingMovies data={trending} />
+                        { trending.length>0 && <TrendingMovies data={trending} />}
 
                         {/* upcoming */}
                         <MovieList title="Upcoming" data={upcoming} />
