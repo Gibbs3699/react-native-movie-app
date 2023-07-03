@@ -4,6 +4,7 @@ import { styles, theme } from '../theme'
 import { ChevronLeftIcon, HeartIcon } from 'react-native-heroicons/solid'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { LinearGradient } from 'expo-linear-gradient'
+import Cast from '../components/Cast'
 
 var { width, height } = Dimensions.get('window')
 const ios = Platform.OS == "ios"
@@ -13,6 +14,7 @@ const MovieScreen = () => {
     let movieName = "Ant-Man and the Wasp: Quantumania"
     const { params: item } = useRoute()
     const navigation = useNavigation()
+    const [cast, setCast] = useState([1,2,3,4,5])
     useEffect(() => {
 
     }, [item])
@@ -88,6 +90,8 @@ const MovieScreen = () => {
                 </Text>
 
             </View>
+
+            <Cast navigation={navigation} cast={cast}/>
 
         </ScrollView>
     )
