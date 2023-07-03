@@ -5,6 +5,7 @@ import { ChevronLeftIcon, HeartIcon } from 'react-native-heroicons/solid'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { LinearGradient } from 'expo-linear-gradient'
 import Cast from '../components/Cast'
+import MovieList from '../components/MovieList'
 
 var { width, height } = Dimensions.get('window')
 const ios = Platform.OS == "ios"
@@ -15,6 +16,7 @@ const MovieScreen = () => {
     const { params: item } = useRoute()
     const navigation = useNavigation()
     const [cast, setCast] = useState([1,2,3,4,5])
+    const [similarMovies, setsimilarMovies] = useState([1,2,3,4,5])
     useEffect(() => {
 
     }, [item])
@@ -93,6 +95,7 @@ const MovieScreen = () => {
 
             <Cast navigation={navigation} cast={cast}/>
 
+            <MovieList title="Similar Movies" data={similarMovies} hideSeeAll={true}/>
         </ScrollView>
     )
 }
