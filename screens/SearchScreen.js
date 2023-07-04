@@ -1,19 +1,44 @@
 import { View, Text, SafeAreaView, TextInput, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Dimensions, Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { XMarkIcon } from 'react-native-heroicons/outline'
 import { useNavigation } from '@react-navigation/native'
 import Loading from '../components/Loading'
+import { debounce } from 'lodash'
+import { fallbackMoviePoster, image185, searchMovies } from '../api/MovieAPI'
 
 var { width, height } = Dimensions.get('window')
 let movieName = "Ant-Man and the Wasp: Quantumania"
 const SearchScreen = () => {
-    const navigation = useNavigation()
-    const [results, setResults] = useState([1, 2, 3, 4])
-    const [loading, setLoading] = useState(true)
+    const navigation = useNavigation();
+    const [loading, setLoading] = useState(false);
+    const [results, setResults] = useState([])
+      
+    const handleSearch = search=>{
+        if(search && search.length>2){
+            setLoading(true);
+            searchMovies({
+                query: search,
+                include_adult: false,
+                language: 'en-US',
+                page: '1'
+            }).then(data=>{
+                console.log('got search results');
+                setLoading(false);
+                if(data && data.results) setResults(data.results);
+            })
+        }else{
+            setLoading(false);
+            setResults([])
+        }
+      }
+    
+    const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
+
     return (
         <SafeAreaView className="flex-1 bg-neutral-800">
             <View className="mx-4 mb-3 flex-row justify-between items-center border border-neutral-500 rounded-full">
                 <TextInput
+                    onChangeText={handleTextDebounce}
                     placeholder="Search Movie"
                     placeholderTextColor={'lightgray'}
                     className="pb-1 pl-6 flex-1 text-base font-semibold text-white tracking-wider"
@@ -48,8 +73,8 @@ const SearchScreen = () => {
                                         >
                                             <View className="space-y-2 mb-4">
                                                 <Image className="rounded-3xl"
-                                                    source={require('../assets/images/moviePoster2.png')}
-                                                    style={{ width: width * 0.44, height: height * 0.3 }}
+                                                    // source={require('../assets/images/moviePoster2.png')}
+                                                    source={{uri: image185(item?.poster_path) || fallbackMoviePoster}}
                                                 />
                                                 <Text className="text-neutral-300 ml-1">
                                                     {

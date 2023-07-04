@@ -73,3 +73,8 @@ export const fetchPersonDetails = (personId)=>{
 export const fetchPersonMovies = (personId)=>{
     return apiCall(personMoviesEndpoint(personId));
 }
+
+// search screen apis
+export const searchMovies = (params)=>{
+    return apiCall(searchMoviesEndpoint, params);
+}
