@@ -9,9 +9,6 @@ var { width, height } = Dimensions.get('window')
 const MovieList = ({ title, data, hideSeeAll }) => {
     let movieName = "Ant-Man and the Wasp: Quantumania"
     const nagivation = useNavigation();
-    const handleClick = ({ item }) => {
-        nagivation.push("Movie", item)
-    }
     return (
         <View className="mb-8 space-y-4">
             <View className="mx-4 flex-row justify-between items-center">
@@ -34,7 +31,7 @@ const MovieList = ({ title, data, hideSeeAll }) => {
                         return (
                             <TouchableWithoutFeedback
                                 key={index}
-                                onPress={handleClick}
+                                onPress={()=> nagivation.push("Movie", item)}
                             >
                                 <View className="space-y-1 mr-4">
                                     <Image

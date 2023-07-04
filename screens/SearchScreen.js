@@ -9,7 +9,7 @@ let movieName = "Ant-Man and the Wasp: Quantumania"
 const SearchScreen = () => {
     const navigation = useNavigation()
     const [results, setResults] = useState([1, 2, 3, 4])
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     return (
         <SafeAreaView className="flex-1 bg-neutral-800">
             <View className="mx-4 mb-3 flex-row justify-between items-center border border-neutral-500 rounded-full">

@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import Cast from '../components/Cast'
 import MovieList from '../components/MovieList'
 import Loading from '../components/Loading'
+import { fallbackMoviePoster, fetchMovieCredits, fetchMovieDetails, fetchSimilarMovies, image500 } from '../api/MovieAPI'
 
 var { width, height } = Dimensions.get('window')
 const ios = Platform.OS == "ios"
@@ -16,13 +17,38 @@ const MovieScreen = () => {
     let movieName = "Ant-Man and the Wasp: Quantumania"
     const { params: item } = useRoute()
     const navigation = useNavigation()
-    const [cast, setCast] = useState([1, 2, 3, 4, 5])
-    const [similarMovies, setsimilarMovies] = useState([1, 2, 3, 4, 5])
-    const [loading, setLoading] = useState(false)
-    useEffect(() => {
-
-    }, [item])
+    const [cast, setCast] = useState([])
+    const [similarMovies, setSimilarMovies] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [movie, setMovie] = useState({});
     const [isFavourite, toggleFavourite] = useState(false);
+
+    useEffect(() => {
+        console.log('PPPP item id: ', item.id)
+        setLoading(true)
+        getMovieDetails(item.id)
+        getMovieCredits(item.id)
+        getSimilarMovies(item.id)
+    }, [item])
+
+    const getMovieDetails = async id => {
+        const data = await fetchMovieDetails(id)
+        if (data) setMovie(data)
+        console.log('PPPP got movie details: ', data)
+        setLoading(false)
+    }
+
+    const getMovieCredits = async id => {
+        const data = await fetchMovieCredits(id)
+        if (data && data.cast) setCast(data.cast)
+        console.log('PPPP got movie credits: ', data)
+    }
+
+    const getSimilarMovies = async id => {
+        const data = await fetchSimilarMovies(id)
+        if (data && data.results) setSimilarMovies(data.results)
+        console.log('PPPP got similar movies: ', data)
+    }
 
     return (
         <ScrollView
@@ -46,7 +72,7 @@ const MovieScreen = () => {
                         <View>
                             <Image
                                 // source={require('../assets/images/moviePoster2.png')} 
-                                source={require('../assets/images/moviePoster2.png')}
+                                source={{ uri: image500(movie?.poster_path) || fallbackMoviePoster }}
                                 style={{ width, height: height * 0.55 }}
                             />
                             <LinearGradient
@@ -68,22 +94,43 @@ const MovieScreen = () => {
 
             <View style={{ marginTop: -(height * 0.09) }} className="space-y-3">
                 {/* title */}
-                <Text className="text-white text-center text-3xl font-bold tracking-widest">
-                    {
-                        movieName
-                    }
-                </Text>
+                {
+                    movie?.id ? (
+                        <Text className="text-white text-center text-3xl font-bold tracking-widest">
+                            {
+                                movie?.title
+                            }
+                        </Text>
+                    ) : null
+                }
 
                 {/* status, release year, runtime */}
-                <Text className="text-neutral-400 font-semibold text-base text-center">
-                    Released • 2020 • 170 min
-                </Text>
+                {
+                    movie?.id ? (
+                        <Text className="text-neutral-400 font-semibold text-base text-center">
+                            {movie?.status} • {movie?.release_date?.split('-')[0] || 'N/A'} • {movie?.runtime} min
+                        </Text>
+                    ) : null
+                }
 
 
 
                 {/* genres  */}
                 <View className="flex-row justify-center mx-4 space-x-2">
-                    <Text className="text-neutral-400 font-semibold text-base text-center">
+                    {
+                        movie?.genres?.map((genre, index) => {
+                            let showDot = index + 1 != movie.genres.lenght
+
+                            return (
+                                <Text className="text-neutral-400 font-semibold text-base text-center">
+                                    {genre?.name} {showDot? "•": null}
+                                </Text>
+                            )
+                        })
+                    }
+
+
+                    {/* <Text className="text-neutral-400 font-semibold text-base text-center">
                         Action •
                     </Text>
                     <Text className="text-neutral-400 font-semibold text-base text-center">
@@ -91,12 +138,15 @@ const MovieScreen = () => {
                     </Text>
                     <Text className="text-neutral-400 font-semibold text-base text-center">
                         Comedy •
-                    </Text>
+                    </Text> */}
+
                 </View>
 
                 {/* description */}
                 <Text className="text-neutral-400 mx-4 tracking-wide">
-                    When a headstrong street orphan, Seiya, in search of his abducted sister unwittingly taps into hidden powers, he discovers he might be the only person alive who can protect a reincarnated goddess, sent to watch over humanity. Can he let his past go and embrace his destiny to become a Knight of the Zodiac?
+                    {
+                        movie?.overview
+                    }
                 </Text>
 
             </View>

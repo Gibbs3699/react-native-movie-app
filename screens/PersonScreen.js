@@ -1,20 +1,47 @@
 import { View, Text, Dimensions, Platform, ScrollView, TouchableOpacity, SafeAreaView, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { styles, theme } from '../theme'
 import { ChevronLeftIcon, HeartIcon } from 'react-native-heroicons/solid'
 import MovieList from '../components/MovieList'
 import Loading from '../components/Loading'
+import { fallbackPersonImage, fetchPersonDetails, fetchPersonMovies, image342 } from '../api/MovieAPI'
 
 var { width, height } = Dimensions.get('window')
 const ios = Platform.OS == 'ios'
 const verticalMargin = ios ? '' : 'my-3'
 
 const PersonScreen = () => {
+    const { params: item } = useRoute()
     const navigation = useNavigation()
+    const [person, setPerson] = useState({});
     const [isFavourite, toggleFavourite] = useState(false)
-    const [personMovies, setPersonMovies] = useState([1, 2, 3, 4])
-    const [loading, setLoading] = useState(false)
+    const [personMovies, setPersonMovies] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        setLoading(true)
+        getPersonDetails(item.id)
+        getPersonMovies(item.id)
+    }, [item])
+
+    const getPersonDetails = async id => {
+        const data = await fetchPersonDetails(id);
+        console.log('got person details');
+        setLoading(false);
+        if (data) {
+            setPerson(data);
+        }
+    }
+    const getPersonMovies = async id => {
+        const data = await fetchPersonMovies(id);
+        console.log('got person movies')
+        if (data && data.cast) {
+            setPersonMovies(data.cast);
+        }
+
+    }
+
     return (
         <ScrollView className="flex-1 bg-neutral-900" contentContainerStyle={{ paddingBottom: 20 }}>
             <SafeAreaView className={"z-20 w-full flex-row justify-between items-center px-4" + verticalMargin}>
@@ -41,7 +68,9 @@ const PersonScreen = () => {
                             }}
                         >
                             <View className="items-center rounded-full overflow-hidden h-72 w-72 border-2 border-neutral-500">
-                                <Image source={require('../assets/images/castImage2.png')}
+                                <Image
+                                    // source={require('../assets/images/castImage2.png')}
+                                    source={{ uri: image342(person?.profile_path) || fallbackPersonImage }}
                                     style={{ height: height * 0.43, width: width * 0.74 }}
                                 />
                             </View>
@@ -50,11 +79,15 @@ const PersonScreen = () => {
                         <View className="mt-6">
                             <Text className="text-3xl text-white font-bold text-center">
                                 {/* Keanu Reeves */}
-                                Keanu Reeves
+                                {
+                                    person?.name
+                                }
                             </Text>
                             <Text className="text-neutral-500 text-base text-center">
-                                Beirut, Lebanon
                                 {/* Beirut, Lebanon */}
+                                {
+                                    person?.place_of_birth
+                                }
                             </Text>
                         </View>
 
@@ -63,28 +96,36 @@ const PersonScreen = () => {
                                 <Text className="text-white font-semibold ">Gender</Text>
                                 <Text className="text-neutral-300 text-sm">
                                     {/* Male */}
-                                    Male
+                                    {
+                                        person?.gender == 1 ? 'Female' : 'Male'
+                                    }
                                 </Text>
                             </View>
                             <View className="border-r-2 border-r-neutral-400 px-2 items-center">
                                 <Text className="text-white font-semibold">Birthday</Text>
                                 <Text className="text-neutral-300 text-sm">
                                     {/* 1964-09-02 */}
-                                    1964-09-02
+                                    {
+                                        person?.birthday
+                                    }
                                 </Text>
                             </View>
                             <View className="border-r-2 border-r-neutral-400 px-2 items-center">
                                 <Text className="text-white font-semibold">known for</Text>
                                 <Text className="text-neutral-300 text-sm">
                                     {/* Acting */}
-                                    Acting
+                                    {
+                                        person?.known_for_department
+                                    }
                                 </Text>
                             </View>
                             <View className="px-2 items-center">
                                 <Text className="text-white font-semibold">Popularity</Text>
                                 <Text className="text-neutral-300 text-sm">
                                     {/* 84.23 % */}
-                                    84.23 %
+                                    {
+                                        person?.popularity?.toFixed(2)
+                                    }
                                 </Text>
                             </View>
 
@@ -93,7 +134,9 @@ const PersonScreen = () => {
                         <View className="my-6 mx-4 space-y-2">
                             <Text className="text-white text-lg">Biography</Text>
                             <Text className="text-neutral-400 tracking-wide">
-                                When a headstrong street orphan, Seiya, in search of his abducted sister unwittingly taps into hidden powers, he discovers he might be the only person alive who can protect a reincarnated goddess, sent to watch over humanity. Can he let his past go and embrace his destiny to become a Knight of the Zodiac?
+                                {
+                                    person?.biography || 'N/A'
+                                }
                             </Text>
                         </View>
 
